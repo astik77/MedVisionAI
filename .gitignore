@@ -1,0 +1,88 @@
+# ============================================================
+# MedVisionAI — .gitignore
+# ============================================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+ENV/
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+pip-wheel-metadata/
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# --- Node / React ---
+node_modules/
+dist/
+.dist/
+*.local
+.npm/
+.yarn/
+.pnp.*
+
+# --- Environment & Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+secrets/
+
+# --- Machine Learning Artifacts ---
+*.h5
+*.pb
+*.tflite
+*.onnx
+saved_model/
+checkpoints/
+logs/
+
+# --- Docker ---
+.dockerignore
+
+# --- Database ---
+*.db
+*.sqlite
+*.sqlite3
+pgdata/
+
+# --- OS ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# --- IDE ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- Uploads / Test Outputs ---
+backend/uploads/
+backend/gradcam_output/
+
+# --- Misc ---
+*.log
+*.bak
+*.swp
+*.tmp
