@@ -2,9 +2,10 @@ import { useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Upload, Scan, AlertCircle, CheckCircle2,
-  ChevronDown, Activity, Zap, Brain
+  Activity, Zap, Brain
 } from 'lucide-react'
 import Navbar from '../components/Navbar'
+import { useToast } from '../components/Toast'
 import { predictAPI } from '../api/client'
 
 const CLASS_COLORS = {
@@ -23,15 +24,28 @@ const CLASS_ICONS = {
   'Cardiomegaly':     <Activity size={18} />,
 }
 
+// Maps HTTP status codes to user-friendly messages
+function friendlyError(err) {
+  const status = err.response?.status
+  const detail = err.response?.data?.detail
+  if (detail && typeof detail === 'string') return detail
+  switch (status) {
+    case 400: return 'Invalid request. Please check the image and try again.'
+    case 401: return 'Session expired. Please log in again.'
+    case 413: return 'File too large. Maximum size is 10 MB.'
+    case 415: return 'Unsupported file type. Please use JPEG, PNG, or WebP.'
+    case 422: return 'The image could not be processed. Please try a different file.'
+    case 500: return 'Server error. Our AI backend encountered an issue — please retry.'
+    default:  return 'An unexpected error occurred. Please try again.'
+  }
+}
+
 // ── Scanning animation overlay ─────────────────────────────────
 function ScanningOverlay() {
   return (
     <div className="absolute inset-0 z-10 overflow-hidden rounded-2xl">
-      {/* Dark tinted overlay */}
       <div className="absolute inset-0 bg-obsidian-900/60" />
-      {/* Scan line */}
       <div className="scan-line" />
-      {/* Corner brackets */}
       {['top-2 left-2', 'top-2 right-2', 'bottom-2 left-2', 'bottom-2 right-2'].map((pos, i) => (
         <div key={i} className={`absolute ${pos} w-5 h-5 border-cyan-400`}
           style={{
@@ -41,7 +55,6 @@ function ScanningOverlay() {
             borderRightWidth: i % 2 === 1 ? '2px' : '0',
           }} />
       ))}
-      {/* Center text */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
         <div className="relative">
           <div className="w-12 h-12 rounded-full border-2 border-cyan-400/30 pulse-ring absolute inset-0" />
@@ -105,7 +118,6 @@ function ResultsPanel({ result, originalUrl }) {
             <p className="text-slate-400 text-sm">{pct}% confidence</p>
           </div>
         </div>
-        {/* Big confidence bar */}
         <div className="mt-4">
           <div className="h-2 bg-white/5 rounded-full overflow-hidden">
             <motion.div
@@ -168,10 +180,13 @@ export default function Dashboard() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
   const fileInputRef = useRef()
+  const toast = useToast()
 
   const processFile = useCallback((f) => {
     if (!f || !f.type.startsWith('image/')) {
-      setError('Please upload a valid image file (JPEG, PNG, WebP).')
+      const msg = 'Please upload a valid image file (JPEG, PNG, WebP).'
+      setError(msg)
+      toast.error(msg)
       return
     }
     setFile(f)
@@ -180,13 +195,12 @@ export default function Dashboard() {
     const reader = new FileReader()
     reader.onload = (e) => setPreview(e.target.result)
     reader.readAsDataURL(f)
-  }, [])
+  }, [toast])
 
   const onDrop = useCallback((e) => {
     e.preventDefault()
     setDragging(false)
-    const f = e.dataTransfer.files[0]
-    processFile(f)
+    processFile(e.dataTransfer.files[0])
   }, [processFile])
 
   const onFileChange = (e) => processFile(e.target.files[0])
@@ -200,8 +214,13 @@ export default function Dashboard() {
       fd.append('file', file)
       const { data } = await predictAPI.predict(fd)
       setResult(data)
+      const topClass = data.prediction_result
+      const pct = Math.round(data.confidence_score * 100)
+      toast.success(`Analysis complete — ${topClass} (${pct}%)`)
     } catch (err) {
-      setError(err.response?.data?.detail || 'An error occurred during analysis.')
+      const msg = friendlyError(err)
+      setError(msg)
+      toast.error(msg)
     } finally {
       setScanning(false)
     }
@@ -286,7 +305,7 @@ export default function Dashboard() {
               </AnimatePresence>
             </motion.div>
 
-            {/* Error */}
+            {/* Error banner */}
             <AnimatePresence>
               {error && (
                 <motion.div

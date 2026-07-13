@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Clock, Trash2, AlertCircle, CheckCircle2, Loader2, Activity, ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+  Clock, Trash2, AlertCircle, CheckCircle2,
+  Loader2, Activity, ChevronLeft, ChevronRight, Copy
+} from 'lucide-react'
 import Navbar from '../components/Navbar'
+import { useToast } from '../components/Toast'
 import { historyAPI } from '../api/client'
 
 const CLASS_COLORS = {
@@ -12,19 +16,47 @@ const CLASS_COLORS = {
   'Cardiomegaly':      { text: 'text-purple-400', bg: 'bg-purple-400/10', border: 'border-purple-400/20'},
 }
 
+// ── Skeleton loader card ───────────────────────────────────────
+function SkeletonCard() {
+  return (
+    <div className="glass rounded-2xl p-5 flex items-center gap-4 animate-pulse">
+      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/5" />
+      <div className="flex-1 space-y-2">
+        <div className="h-3 bg-white/5 rounded-full w-1/3" />
+        <div className="h-1.5 bg-white/5 rounded-full w-32" />
+        <div className="h-2.5 bg-white/5 rounded-full w-1/4" />
+      </div>
+      <div className="w-8 h-8 rounded-lg bg-white/5 flex-shrink-0" />
+    </div>
+  )
+}
+
+// ── Single history card ────────────────────────────────────────
 function HistoryCard({ item, onDelete }) {
   const [deleting, setDeleting] = useState(false)
   const c = CLASS_COLORS[item.prediction_result] || { text: 'text-cyan-400', bg: 'bg-cyan-400/10', border: 'border-cyan-400/20' }
   const pct = Math.round(item.confidence_score * 100)
   const date = new Date(item.timestamp)
+  const toast = useToast()
 
   const handleDelete = async () => {
     setDeleting(true)
     try {
       await historyAPI.deleteRecord(item.id)
       onDelete(item.id)
+      toast.success(`Scan #${item.id} deleted`)
     } catch {
       setDeleting(false)
+      toast.error('Failed to delete record. Please try again.')
+    }
+  }
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(String(item.id))
+      toast.info(`Copied scan ID #${item.id}`)
+    } catch {
+      toast.error('Could not copy to clipboard.')
     }
   }
 
@@ -65,6 +97,15 @@ function HistoryCard({ item, onDelete }) {
         </p>
       </div>
 
+      {/* Copy ID button */}
+      <button
+        onClick={handleCopy}
+        title={`Copy scan ID #${item.id}`}
+        className="flex-shrink-0 p-2 rounded-lg text-slate-600 hover:text-cyan-400 hover:bg-cyan-400/10 transition-all duration-200"
+      >
+        <Copy size={13} />
+      </button>
+
       {/* Record ID */}
       <span className="text-xs text-slate-600 font-mono hidden sm:block">#{item.id}</span>
 
@@ -80,6 +121,7 @@ function HistoryCard({ item, onDelete }) {
   )
 }
 
+// ── Main History page ─────────────────────────────────────────
 export default function History() {
   const [records, setRecords] = useState([])
   const [total, setTotal] = useState(0)
@@ -87,6 +129,7 @@ export default function History() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const PAGE_SIZE = 10
+  const toast = useToast()
 
   const fetchHistory = async (p) => {
     setLoading(true)
@@ -96,7 +139,8 @@ export default function History() {
       setRecords(data.items)
       setTotal(data.total)
     } catch {
-      setError('Failed to load history.')
+      setError('Failed to load history. Please refresh the page.')
+      toast.error('Could not load scan history.')
     } finally {
       setLoading(false)
     }
@@ -132,11 +176,8 @@ export default function History() {
 
         {/* Content */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }}>
-              <Activity size={28} className="text-cyan-400" />
-            </motion.div>
-            <p className="text-slate-400 text-sm">Loading history...</p>
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : error ? (
           <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 text-sm">

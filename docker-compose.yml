@@ -37,10 +37,12 @@ services:
       ALGORITHM: ${ALGORITHM}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
       BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS}
+      UPLOAD_DIR: /app/uploads
     volumes:
       - ./backend:/app
       - ./test_images:/app/test_images
       - model_data:/app/models
+      - uploads_data:/app/uploads
     ports:
       - "8000:8000"
     depends_on:
@@ -48,6 +50,12 @@ services:
         condition: service_healthy
     networks:
       - medvision-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 
   # ── React / Vite Frontend ──────────────────────────────────
   frontend:
@@ -64,7 +72,8 @@ services:
     ports:
       - "5173:5173"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - medvision-net
 
@@ -72,6 +81,7 @@ services:
 volumes:
   pgdata:
   model_data:
+  uploads_data:
 
 networks:
   medvision-net:

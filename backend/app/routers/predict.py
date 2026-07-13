@@ -5,7 +5,6 @@ POST /api/predict   — Upload an image, run ML inference, return Grad-CAM
 GET  /api/predict/{id} — Retrieve one prediction record by ID
 """
 
-import os
 import uuid
 import json
 import logging
@@ -15,6 +14,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from sqlalchemy.orm import Session
 
+from ..core.config import get_settings
 from ..core.database import get_db
 from ..core.security import get_current_user
 from ..models.models import User, PredictionHistory
@@ -25,7 +25,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/predict", tags=["Predictions"])
 
 # ── Upload storage ────────────────────────────────────────────
-UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", "/app/uploads"))
+_settings = get_settings()
+UPLOAD_DIR = Path(_settings.UPLOAD_DIR)
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 # Allowed image MIME types

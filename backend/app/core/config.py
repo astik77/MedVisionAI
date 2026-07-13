@@ -17,7 +17,10 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
     # ── CORS ─────────────────────────────────────────────────
-    BACKEND_CORS_ORIGINS: str = "http://localhost:5173"
+    BACKEND_CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
+
+    # ── Storage ──────────────────────────────────────────────
+    UPLOAD_DIR: str = "/app/uploads"
 
     # ── App ──────────────────────────────────────────────────
     ENVIRONMENT: str = "development"
