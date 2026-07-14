@@ -28,29 +28,28 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 # ── Sample images (public domain / CC0) ──────────────────────
 SAMPLES = [
     {
-        "filename": "normal_chest_xray.jpg",
+        "filename": "chest_xray_sample1.jpg",
         "url": (
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/"
-            "4/48/CXR_-_normal.jpg/800px-CXR_-_normal.jpg"
+            "https://raw.githubusercontent.com/ieee8023/covid-chestxray-dataset/"
+            "master/images/000001-1.jpg"
         ),
-        "label": "Normal Chest X-ray (Wikimedia Commons — public domain)",
+        "label": "Chest X-ray sample 1 (ieee8023/covid-chestxray-dataset — CC BY 4.0)",
     },
     {
-        "filename": "pneumonia_chest_xray.jpg",
+        "filename": "chest_xray_sample2.jpg",
         "url": (
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/"
-            "2/2e/Pneumonias_Bacterial_Pneumonia_Cavity_with_air-fluid_level.jpg/"
-            "800px-Pneumonias_Bacterial_Pneumonia_Cavity_with_air-fluid_level.jpg"
+            "https://raw.githubusercontent.com/ieee8023/covid-chestxray-dataset/"
+            "master/images/000001-10.jpg"
         ),
-        "label": "Bacterial Pneumonia X-ray (Wikimedia Commons — public domain)",
+        "label": "Chest X-ray sample 2 (ieee8023/covid-chestxray-dataset — CC BY 4.0)",
     },
     {
-        "filename": "pleural_effusion_xray.jpg",
+        "filename": "chest_xray_sample3.jpg",
         "url": (
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/"
-            "f/ff/Pleural_effusion.jpg/800px-Pleural_effusion.jpg"
+            "https://raw.githubusercontent.com/ieee8023/covid-chestxray-dataset/"
+            "master/images/000001-15.jpg"
         ),
-        "label": "Pleural Effusion X-ray (Wikimedia Commons — public domain)",
+        "label": "Chest X-ray sample 3 (ieee8023/covid-chestxray-dataset — CC BY 4.0)",
     },
 ]
 
