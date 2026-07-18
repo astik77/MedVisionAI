@@ -27,7 +27,6 @@ router = APIRouter(prefix="/api/predict", tags=["Predictions"])
 # ── Upload storage ────────────────────────────────────────────
 _settings = get_settings()
 UPLOAD_DIR = Path(_settings.UPLOAD_DIR)
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 # Allowed image MIME types
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/bmp"}

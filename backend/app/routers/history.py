@@ -7,7 +7,7 @@ GET /api/history  — Paginated list of the current user's past predictions
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
@@ -84,7 +84,6 @@ def delete_prediction(
         .first()
     )
     if not record:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Prediction record not found.")
 
     db.delete(record)

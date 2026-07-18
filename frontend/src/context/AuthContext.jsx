@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
         .then(({ data }) => setUser(data))
         .catch(() => logout())
     }
-  }, [])
+  }, [logout])
 
   const login = useCallback(async (email, password) => {
     setLoading(true)

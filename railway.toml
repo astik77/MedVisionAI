@@ -1,0 +1,8 @@
+# ============================================================
+# MedVisionAI — Root Railway Configuration
+# Railway will auto-detect services from this file.
+# Each service should also have its own railway.toml inside
+# its subdirectory with service-specific build/deploy config.
+# ============================================================
+
+[environments.production]

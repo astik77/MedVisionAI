@@ -1,20 +1,41 @@
 # ============================================================
-# MedVisionAI Frontend — Dockerfile
-# Uses Vite dev server for development hot-reload
+# MedVisionAI Frontend — Production Dockerfile
+# Stage 1: Build Vite app → dist/
+# Stage 2: Serve dist/ with nginx, listening on Railway's $PORT
 # ============================================================
 
-FROM node:20-alpine
+# ── Stage 1: Build ────────────────────────────────────────────
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies first (layer cache optimisation)
+# Install dependencies (cached layer)
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm ci
 
-# Copy source
+# Copy source and build
+# VITE_API_URL is passed as a build arg so it's baked into the JS bundle
+ARG VITE_API_URL=http://localhost:8000
+ENV VITE_API_URL=$VITE_API_URL
+
 COPY . .
+RUN npm run build
 
-EXPOSE 5173
+# ── Stage 2: Serve ────────────────────────────────────────────
+FROM nginx:stable-alpine
 
-# --host makes Vite listen on all interfaces inside the container
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# Copy built assets
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy nginx template (uses ${PORT} placeholder)
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+
+# Railway injects PORT; nginx Docker image runs envsubst on /etc/nginx/templates/*.template
+# and writes the result to /etc/nginx/conf.d/ at startup automatically.
+
+EXPOSE 3000
+
+# Default PORT if not injected (Railway always injects it)
+ENV PORT=3000
+
+CMD ["nginx", "-g", "daemon off;"]

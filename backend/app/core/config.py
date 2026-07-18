@@ -5,6 +5,7 @@ Reads all settings from environment variables (or .env file via python-dotenv).
 
 from pydantic_settings import BaseSettings
 from functools import lru_cache
+from pydantic import model_validator
 
 
 class Settings(BaseSettings):
@@ -24,6 +25,15 @@ class Settings(BaseSettings):
 
     # ── App ──────────────────────────────────────────────────
     ENVIRONMENT: str = "development"
+
+    @model_validator(mode="after")
+    def _validate_secret_key(self):
+        insecure = "change_me_to_a_long_random_string"
+        if self.ENVIRONMENT == "production" and self.SECRET_KEY.startswith(insecure):
+            raise ValueError(
+                "SECRET_KEY must be changed from the default value before running in production."
+            )
+        return self
 
     class Config:
         env_file = ".env"

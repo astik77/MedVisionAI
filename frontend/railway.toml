@@ -1,0 +1,17 @@
+# ============================================================
+# MedVisionAI Frontend — Railway Service Configuration
+# ============================================================
+
+[build]
+dockerfilePath = "Dockerfile"
+
+# VITE_API_URL is a build-time arg — set it in the Railway service
+# Variables UI so the backend URL gets baked into the JS bundle.
+[build.args]
+VITE_API_URL = ""
+
+[deploy]
+healthcheckPath = "/"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

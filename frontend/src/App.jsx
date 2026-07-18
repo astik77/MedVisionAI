@@ -13,9 +13,9 @@ import './index.css'
 export default function App() {
   return (
     <ToastProvider>
+      <ToastContainer />
       <AuthProvider>
         <BrowserRouter>
-          <ToastContainer />
           <AnimatePresence mode="wait">
             <Routes>
               {/* Public routes */}

@@ -27,4 +27,5 @@ RUN mkdir -p uploads gradcam_output models test_images
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Use shell form so $PORT is expanded at runtime (Railway injects PORT)
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
